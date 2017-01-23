@@ -38,6 +38,15 @@ window.onkeydown = function(e) {
 	if (code === 32 || code === 80) {
 		pauseGame();
 	}
+	if (code === 77) {
+		if (!ping.muted) {
+			ping.muted = true;
+			loss.muted = true;
+		} else {
+			ping.muted = false;
+			loss.muted = false;
+		}
+	}
 }
 
 function pauseGame() {

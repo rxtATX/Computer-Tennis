@@ -33,11 +33,14 @@ window.onload = function() {
 	canvas.addEventListener("mousemove", handleMouseMove);
 	canvas.addEventListener("mousedown", handleMouseClick);
 };
+//Listens for key presses
 window.onkeydown = function(e) {
 	var code = e.keyCode ? e.keyCode : e.which;
+	//Code for spacebar.
 	if (code === 32 || code === 80) {
 		pauseGame();
 	}
+	//Code for "m" key.
 	if (code === 77) {
 		if (!ping.muted) {
 			ping.muted = true;
@@ -48,7 +51,7 @@ window.onkeydown = function(e) {
 		}
 	}
 }
-
+//Called when P or Spacebar pressed.
 function pauseGame() {
 	if (gamePaused === false) {
 		game = clearInterval(game);
@@ -58,7 +61,7 @@ function pauseGame() {
 		gamePaused = false;
 	}
 }
-
+//Creates the smooth motion of the game and canvas.
 function updateAll() {
 	drawGame();
 	gameMovement();	
@@ -147,8 +150,8 @@ function gameMovement() {
 			var deltaY = ballY - (paddleOneY + PADDLE_HEIGHT/2);
 			ballSpeedY = deltaY * 0.3;
 			ping.play();
-			if (ballSpeedY < 4) {
-				ballSpeedY = 4;
+			if (ballSpeedY < 4 || ballSpeedY > -4) {
+				ballSpeedY *= 1.05;
 			}
 		} else {
 			loss.play();
@@ -165,8 +168,8 @@ function gameMovement() {
 			var deltaY = ballY - (paddleTwoY + PADDLE_HEIGHT/2);
 			ballSpeedY = deltaY * 0.3;
 			ping.play();
-			if (ballSpeedY < 4) {
-				ballSpeedY = 4;
+			if (ballSpeedY < 4 || ballSpeedY > -4) {
+				ballSpeedY *= 1.05;
 			}			
 		} else {
 			loss.play();

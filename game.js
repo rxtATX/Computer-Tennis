@@ -1,11 +1,14 @@
 //Global variables
 var canvas;
 var canvasContext;
+var game;
+var gamePaused = false;
 //Coordinates and speed for the ball.
 var ballX = 400;
 var ballY = 300;
 var ballSpeedX = 5;
 var ballSpeedY = 2;
+var FPS = 50;
 //Coordinates player paddle
 var paddleOneY = 250;
 const PADDLE_HEIGHT = 100;
@@ -16,21 +19,41 @@ var paddleTwoY = 250;
 var playerScore = 0;
 var computerScore = 0;
 const WINNINGSCORE = 7;
-
+//Sound files
+var ping = new Audio("assets/sound/ping.wav");
+var loss = new Audio("assets/sound/loss.wav");
+//Flag for winning screen
 var showingWinScreen = false;
 window.onload = function() {
 	canvas = document.getElementById("gameCanvas");
 	canvasContext = canvas.getContext("2d");
 	//Frames per second and reiterating function calls.
-	var FPS = 50;
-	setInterval(function() {
-		drawGame();
-		gameMovement();
-	}, 1000/FPS);
+	game = setInterval(updateAll, 1000/FPS);
 	//Establish movement with mouse.
 	canvas.addEventListener("mousemove", handleMouseMove);
 	canvas.addEventListener("mousedown", handleMouseClick);
 };
+window.onkeydown = function(e) {
+	var code = e.keyCode ? e.keyCode : e.which;
+	if (code === 32 || code === 80) {
+		pauseGame();
+	}
+}
+
+function pauseGame() {
+	if (gamePaused === false) {
+		game = clearInterval(game);
+		gamePaused = true;
+	} else if (gamePaused === true) {
+		game = setInterval(updateAll, 1000/FPS);
+		gamePaused = false;
+	}
+}
+
+function updateAll() {
+	drawGame();
+	gameMovement();	
+}
 //Mouse event listeners
 function handleMouseClick(evt) {
 	if (showingWinScreen) {
@@ -104,16 +127,22 @@ function gameMovement() {
 	//For bouncing off walls.
 	if (ballY > canvas.height || ballY < 0) {
 		ballSpeedY = -ballSpeedY;
+		ping.play();
 	}
 	//For bouncing off paddles.
 	//Player paddle
 	if (ballX <= 0) {
-		if (ballY > paddleOneY && 
-			ballY < paddleOneY + PADDLE_HEIGHT) {
+		if (ballY >= paddleOneY && 
+			ballY <= paddleOneY + PADDLE_HEIGHT) {
 			ballSpeedX = -ballSpeedX;
 			var deltaY = ballY - (paddleOneY + PADDLE_HEIGHT/2);
 			ballSpeedY = deltaY * 0.3;
+			ping.play();
+			if (ballSpeedY < 4) {
+				ballSpeedY = 4;
+			}
 		} else {
+			loss.play();
 			//Generate score BEFORE reset
 			computerScore++;
 			ballReset();
@@ -121,12 +150,17 @@ function gameMovement() {
 	}
 	//Opponent paddle
 	if (ballX >= canvas.width) {
-		if (ballY > paddleTwoY &&
-			ballY < paddleTwoY + PADDLE_HEIGHT) {
+		if (ballY >= paddleTwoY &&
+			ballY <= paddleTwoY + PADDLE_HEIGHT) {
 			ballSpeedX = - ballSpeedX;
 			var deltaY = ballY - (paddleTwoY + PADDLE_HEIGHT/2);
 			ballSpeedY = deltaY * 0.3;
+			ping.play();
+			if (ballSpeedY < 4) {
+				ballSpeedY = 4;
+			}			
 		} else {
+			loss.play();
 			//Generate score BEFORE reset
 			playerScore++;
 			ballReset();
